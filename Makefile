@@ -43,7 +43,7 @@ ifeq ($(shell uname 2>/dev/null),Darwin) # Mac OS X
 	LIB := -rpath @loader_path/$(FRAMEWORK_PATH) $(addprefix -framework ,$(FRAMEWORK)) $(FRAMEWORK_PATH:%=-F %) -lm
 endif
 ifeq ($(shell uname 2>/dev/null),Linux)
-	LIB := $(addprefix -l,$(FRAMEWORK)) -lm
+	LIB := $(addprefix -l,$(FRAMEWORK)) -lm -pthread
 endif
 
 # RULES
@@ -58,7 +58,7 @@ all:
 
 $(NAME): $(OBJ_UTILS) $(OBJ_GAME) $(OBJ_ENGINE)
 	@echo "\033[34mGenerated : \033[5;36m$(NAME)\033[0m"
-	@$(CC) $(CFLAGS) $(INCLUDE) $(LIB) $^ -o $@
+	@$(CC) $(CFLAGS) $(INCLUDE) $^ -o $@ $(LIB)
 
 -include $(DEP)
 $(OBJ_PATH)/%.o: $(SRC_PATH)/%.c
