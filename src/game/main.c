@@ -6,7 +6,7 @@
 /*   By: tbailleu <tbailleu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/20 15:34:21 by tbailleu          #+#    #+#             */
-/*   Updated: 2019/12/20 16:33:11 by tbailleu         ###   ########.fr       */
+/*   Updated: 2020/02/25 16:31:03 by tbailleu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,16 +39,16 @@ int		readfile(t_engine *e)
 
 int		main(void)
 {
+	int			status;
 	int			i;
 	double		fov_width;
 	t_engine	*e;
 	SDL_Event	event;
 
-	if (!engine_init(&e))
+	if (!(status = engine_init(&e)))
 	{
-		draw_text(e, "Timed-out: map read too slow", (SDL_Point){0, 16});
-		draw_text(e, "Press ^D in iTerm to stop the program",
-			(SDL_Point){0, 32});
+		draw_text(e, MAP_TIMEOUT, (SDL_Point){0, 16});
+		draw_text(e, STOP_TIMEOUT, (SDL_Point){0, 32});
 		SDL_RenderPresent(e->renderer);
 		SDL_PollEvent(&event);
 		if (readfile(e))
@@ -63,5 +63,5 @@ int		main(void)
 		}
 	}
 	engine_quit(e);
-	return (0);
+	return (status);
 }

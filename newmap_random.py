@@ -16,7 +16,7 @@ line = px + py + pr + mx + my
 
 for y in range(256):
 	for x in range(256):
-		line = line + random.choice([' ', ' ', ' ', '#'])
+		line = line + random.choice([' ', ' ', ' ', ' ', ' ', '#'])
 	line = line + '\n'
 
 print(line)

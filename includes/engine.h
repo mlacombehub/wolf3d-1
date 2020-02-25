@@ -6,7 +6,7 @@
 /*   By: tbailleu <tbailleu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/20 15:25:46 by tbailleu          #+#    #+#             */
-/*   Updated: 2019/12/20 17:07:04 by tbailleu         ###   ########.fr       */
+/*   Updated: 2020/02/25 16:31:00 by tbailleu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 
 # define SDL_INIT_TIMER_VIDEO_EVENTS 0x00004021
 # define TTF_OPENFONT_PATH "/System/Library/Fonts/menlo.ttc"
+# define MAP_TIMEOUT "Timed-out: read map from stdin is too slow"
+# define STOP_TIMEOUT "Press ^D in iTerm to stop the map reader"
 
 typedef	char		t_block;
 
@@ -71,8 +73,6 @@ typedef struct		s_engine
 	TTF_Font		*font;
 	SDL_Window		*win;
 	SDL_Renderer	*renderer;
-	SDL_mutex		*lock_mutex[3];
-	SDL_cond		*cond_signal[3];
 	SDL_Texture		*students[2];
 	SDL_Rect		students_size[2];
 	SDL_Texture		*textures[4];

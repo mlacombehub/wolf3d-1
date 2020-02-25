@@ -6,7 +6,7 @@
 /*   By: tbailleu <tbailleu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/20 15:32:16 by tbailleu          #+#    #+#             */
-/*   Updated: 2019/12/21 11:26:59 by tbailleu         ###   ########.fr       */
+/*   Updated: 2020/02/25 16:37:32 by tbailleu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,23 +15,18 @@
 
 uint32_t	start_timeout(uint32_t interval, t_engine *e)
 {
-	if (e->game.map.x == 0)
+	if (e->game.map.x == 0 && interval & 1)
 	{
 		write(2, "Timed-out: map read too slow\n", 29);
 		write(2, "Press ^D to stop the program\n", 29);
-		SDL_DestroyCond(e->cond_signal[0]);
-		e->cond_signal[0] = 0;
 	}
-	if (e->quit == 1)
+	if (e->quit & 0b001)
 	{
-		e->quit++;
+		e->quit &= ~0b001;
 		SDL_RemoveTimer(e->start_timeout);
-		SDL_Delay(100);
-		SDL_LockMutex(e->lock_mutex[0]);
-		SDL_CondSignal(e->cond_signal[0]);
-		SDL_UnlockMutex(e->lock_mutex[0]);
+		return (0);
 	}
-	return (e->quit == 2 ? 0 : interval);
+	return (interval & 1 ? 500 : 501);
 }
 
 uint32_t	tick_hook(uint32_t interval, t_engine *e)
@@ -51,15 +46,13 @@ uint32_t	tick_hook(uint32_t interval, t_engine *e)
 	}
 	e->random = rand();
 	player_movement(e, &e->game.map, &e->game.player);
-	if (e->quit == 2 && e->quit++)
+	if (e->quit & 0b010)
 	{
+		e->quit &= ~0b010;
 		SDL_RemoveTimer(e->tick_id);
-		SDL_Delay(103);
-		SDL_LockMutex(e->lock_mutex[1]);
-		SDL_CondSignal(e->cond_signal[1]);
-		SDL_UnlockMutex(e->lock_mutex[1]);
+		return (0);
 	}
-	return (e->quit == 3 ? 0 : interval);
+	return (interval);
 }
 
 uint32_t	render_hook(uint32_t interval, t_engine *e)
@@ -70,19 +63,17 @@ uint32_t	render_hook(uint32_t interval, t_engine *e)
 	SDL_RenderFillRect(e->renderer,
 		&(SDL_Rect){0, 0, e->screen.w, e->screen.h / 2});
 	render_raycast(e);
-	render_map(e);
+	if (e->game.map.x < 64 && e->game.map.y < 64)
+		render_map(e);
 	render_player(e);
 	SDL_RenderPresent(e->renderer);
-	if (e->quit == 3)
+	if (e->quit & 0b100)
 	{
-		e->quit++;
+		e->quit &= ~0b100;
 		SDL_RemoveTimer(e->render_id);
-		SDL_Delay(100);
-		SDL_LockMutex(e->lock_mutex[2]);
-		SDL_CondSignal(e->cond_signal[2]);
-		SDL_UnlockMutex(e->lock_mutex[2]);
+		return (0);
 	}
-	return (e->quit == 4 ? 0 : interval);
+	return (interval);
 }
 
 int			events_hook(t_engine *e)
@@ -93,7 +84,7 @@ int			events_hook(t_engine *e)
 	{
 		if (event.type == SDL_QUIT || (event.type == SDL_KEYUP
 		&& event.key.keysym.scancode == SDL_SCANCODE_ESCAPE))
-			return (e->quit = 1);
+			return (e->quit = 0xffffffff);
 		if (event.type == SDL_KEYDOWN)
 			e->keys[event.key.keysym.scancode] = 1;
 		else if (event.type == SDL_KEYUP)
